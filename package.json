@@ -1,0 +1,12 @@
+{
+  "name": "tienda-online-pbl",
+  "version": "1.0.0",
+  "description": "Proyecto conjunto de Desarrollo Web en Entorno Servidor, Diseño de Interfaces Web y Despliegue de Aplicaciones Web.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
