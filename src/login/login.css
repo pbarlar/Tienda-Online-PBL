@@ -74,7 +74,7 @@ button {
     cursor: pointer;
     font-family: 'Open Sans', sans-serif;
 
-    
+
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -98,4 +98,27 @@ button:hover {
 
 .register-link a:hover {
     text-decoration: underline;
+}
+
+/* Captcha Styles */
+.hidden {
+    display: none !important;
+}
+
+#captcha-container {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+#captcha-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8b5e3c;
+    background-color: #eee;
+    padding: 10px;
+    margin: 10px 0;
+    letter-spacing: 5px;
+    border-radius: 6px;
+    user-select: none;
 }
