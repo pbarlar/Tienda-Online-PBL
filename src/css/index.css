@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+/* 1. Variables y Reset */
+:root {
+    --color-primary: #d4a5a5;
+    /* Rosa Pastel */
+    --color-secondary: #c9a66b;
+    /* Dorado */
+    --color-dark: #2c2c2c;
+    --color-light: #fafafa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--color-light);
+    color: var(--color-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Prevenir scroll horizontal por animaciones */
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+ul {
+    list-style: none;
+}
+
+/* 2. Barra de Navegación */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    /* Animación 1: Deslizar hacia abajo */
+    animation: slideDown 0.8s ease-out;
+}
+
+.navbar__logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.navbar__logo span {
+    color: var(--color-primary);
+}
+
+.navbar__menu {
+    display: flex;
+    gap: 2rem;
+}
+
+.navbar__link {
+    font-weight: 400;
+    position: relative;
+}
+
+.navbar__link:hover {
+    color: var(--color-secondary);
+}
+
+/* Animación 2: Subrayado expandible al pasar el ratón */
+.navbar__link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background-color: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.navbar__link:hover::after {
+    width: 100%;
+}
+
+.navbar__icons {
+    display: flex;
+    gap: 1rem;
+    color: var(--color-dark);
+}
+
+/* 3. Sección Hero */
+.hero {
+    position: relative;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../assets/img/hero-banner.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    /* Efecto parallax simple */
+    color: #ffffff;
+}
+
+.hero__content {
+    max-width: 800px;
+    padding: 2rem;
+    /* Animación 3: Aparecer hacia arriba */
+    animation: fadeInUp 1s ease-out 0.5s backwards;
+}
+
+.hero__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero__subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+}
+
+.hero__btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.hero__btn:hover {
+    background-color: var(--color-secondary);
+    transform: translateY(-3px);
+    /* Efecto de elevación al pasar el ratón */
+}
+
+/* 4. Introducción / Sobre Nosotros */
+.about {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #ffffff;
+}
+
+.about__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-dark);
+}
+
+.about__text {
+    max-width: 700px;
+    margin: 0 auto 4rem;
+    color: #666;
+}
+
+/* 5. Galería de Cuadrícula Irregular */
+.gallery {
+    display: grid;
+    /* 4 columnas fijas en escritorio para mejor control de la irregularidad */
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 250px;
+    /* Altura de fila fija */
+    gap: 1rem;
+    padding: 0 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery__item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    height: 100%;
+    /* Llenar la celda de la cuadrícula */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Magia del diseño irregular */
+.gallery__item:nth-child(1) {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.gallery__item:nth-child(2) {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.gallery__item:nth-child(3) {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.gallery__item:nth-child(4) {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+.gallery__item:nth-child(5) {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+.gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+/* Animación 4: Escalar al pasar el ratón */
+.gallery__item:hover .gallery__img {
+    transform: scale(1.1);
+}
+
+/* 6. Pie de Página */
+.footer {
+    background-color: var(--color-dark);
+    color: #ffffff;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.footer__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer__links a {
+    margin: 0 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.footer__links a:hover {
+    opacity: 1;
+    color: var(--color-primary);
+}
+
+/* Fotogramas Clave */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .navbar__menu {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .hero__title {
+        font-size: 2.5rem;
+    }
+
+    /* Restablecer cuadrícula para tablet/móvil a un diseño más simple */
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columnas en tablet */
+        grid-auto-rows: 250px;
+    }
+
+    .gallery__item:nth-child(n) {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+
+    .gallery__item:nth-child(1) {
+        grid-column: span 2;
+        /* Elemento destacado ancho completo */
+        grid-row: span 1;
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery {
+        grid-template-columns: 1fr;
+        /* 1 columna en móvil */
+        grid-auto-rows: 250px;
+    }
+
+    .gallery__item:nth-child(n) {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+}
