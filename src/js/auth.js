@@ -1,3 +1,4 @@
+
 /**
  * auth.js
  * Gestiona la autenticación del usuario en el frontend.
