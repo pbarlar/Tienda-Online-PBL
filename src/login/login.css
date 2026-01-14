@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Open+Sans:wght@400;600&display=swap');
+
+/* 1. Variables CSS (Requisito: Al menos 4 variables) */
+:root {
+    --color-primary: #8b5e3c;
+    --color-primary-dark: #6d462b;
+    --color-text: #333;
+    --color-bg: #f7f3e8;
+    --color-white: #ffffff;
+    --font-heading: 'Merriweather', serif;
+    --font-body: 'Open Sans', sans-serif;
+    --shadow-card: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--color-text);
+    /* Effect 1: Gradient animation on background */
+    background: linear-gradient(135deg, #fdfbf7 0%, #f7f3e8 100%);
+}
+
+/* BEM: Block .login-container */
+.login-container {
+    background-color: var(--color-white);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    border-top: 5px solid var(--color-primary);
+
+    /* Effect 2: Fade In Animation for the card */
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* BEM: Element .login__title */
+.login__title {
+    font-family: var(--font-heading);
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+/* BEM: Element .login__form */
+.login__form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* BEM: Element .login__field - Wrapper for label+input */
+.login__field {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+/* BEM: Element .login__label */
+.login__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* BEM: Element .login__input */
+.login__input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+/* Effect 3: Focus animation on inputs */
+.login__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.2);
+}
+
+/* BEM: Element .login__button */
+.login__button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all var(--transition-speed) ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Effect 4: Hover animation on buttons */
+.login__button:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Variant modifier for button */
+.login__button--secondary {
+    margin-top: 1rem;
+    background-color: #2c3e50;
+}
+
+.login__button--secondary:hover {
+    background-color: #1a252f;
+}
+
+/* BEM: Block .register-link */
+.register-link {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.register-link__anchor {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.register-link__anchor:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+/* Captcha Section Styles */
+.hidden {
+    display: none !important;
+}
+
+.login__captcha {
+    margin-top: 1rem;
+    text-align: center;
+    /* Animation when appearing */
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login__captcha-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--color-primary);
+    background-color: #eee;
+    padding: 10px;
+    margin: 10px 0;
+    letter-spacing: 5px;
+    border-radius: 6px;
+    user-select: none;
+    cursor: default;
+}
+
+.login__captcha-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+/* Media Queries for Responsiveness */
+
+/* Mobile (< 576px) - Already handled by default fluid width, but enforcing logic */
+@media (max-width: 576px) {
+    .login-container {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .login__title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Tablet (576px - 1024px) */
+@media (min-width: 576px) and (max-width: 1024px) {
+    .login-container {
+        max-width: 500px;
+    }
+}
+

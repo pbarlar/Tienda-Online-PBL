@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="login.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+</head>
+
+<body>
+    <div class="login-container">
+        <h1 class="login__title">Iniciar Sesión</h1>
+        <form action="" id="form" class="login__form">
+            <div class="login__field">
+                <label for="username" class="login__label">Usuario:</label>
+                <input type="text" id="username" name="username" class="login__input" placeholder="Tu nombre de usuario"
+                    required>
+            </div>
+            <div class="login__field">
+                <label for="password" class="login__label">Contraseña:</label>
+                <input type="password" id="password" name="password" class="login__input" placeholder="Tu contraseña"
+                    required>
+            </div>
+            <button type="submit" class="login__button">Iniciar Sesión</button>
+        </form>
+
+        <div id="captcha-container" class="login__captcha hidden">
+            <p class="login__captcha-text">Introduce el siguiente texto para continuar:</p>
+            <div id="captcha-display" class="login__captcha-display"></div>
+            <input type="text" id="captcha-input" class="login__captcha-input" placeholder="Introduce el captcha">
+            <button id="verify-captcha" class="login__button login__button--secondary">Verificar</button>
+        </div>
+
+        <p class="register-link"><a href="register.html" class="register-link__anchor">¿No tienes cuenta? Registrate</a>
+        </p>
+    </div>
+    <script src="login.js"></script>
+</body>
+
+</html>

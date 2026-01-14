@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colección | Lumina</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="collection.css">
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+    <script src="../js/auth.js"></script>
+</head>
+
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <a href="../index.html" class="navbar__logo">Lumina<span>.</span></a>
+        <nav>
+            <ul class="navbar__menu">
+                <li><a href="../index.html" class="navbar__link">Inicio</a></li>
+                <li><a href="#" class="navbar__link active">Colección</a></li>
+                <li><a href="../about/about.html" class="navbar__link">Sobre Nosotros</a></li>
+                <li><a href="../login/login.html" class="navbar__link">Login</a></li>
+            </ul>
+        </nav>
+        <div class="navbar__icons">
+            <a href="#" id="cart-btn" aria-label="Carrito">Carrito (<span id="cart-count">0</span>)</a>
+        </div>
+    </header>
+
+    <!-- Collection Header -->
+    <section class="collection-header">
+        <h1 class="collection-title">Nuestra Colección</h1>
+        <p class="collection-subtitle">Explora nuestros productos seleccionados para ti.</p>
+    </section>
+
+    <!-- Filters & Sort -->
+    <section class="filters container">
+        <div class="filter-group">
+            <label for="category-select">Categoría:</label>
+            <select id="category-select">
+                <option value="all">Todas</option>
+                <!-- Opciones dinámicas -->
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="sort-select">Ordenar por:</label>
+            <select id="sort-select">
+                <option value="default">Defecto</option>
+                <option value="price-asc">Precio: Menor a Mayor</option>
+                <option value="price-desc">Precio: Mayor a Menor</option>
+                <option value="title-asc">Nombre: A-Z</option>
+                <option value="title-desc">Nombre: Z-A</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Product Grid -->
+    <main class="container">
+        <div id="product-grid" class="product-grid">
+            <!-- Productos dinámicos -->
+        </div>
+
+        <!-- Elemento Centinela para Scroll Infinito -->
+        <div id="sentinel" style="height: 10px; width: 100%;"></div>
+
+        <!-- Loading Sentinel / Spinner -->
+        <div id="loader" class="loader">
+            <div class="spinner"></div>
+            <p>Cargando más productos...</p>
+        </div>
+        <div id="end-message" class="end-message hidden">No hay más productos.</div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__logo">Lumina Cosmetics</div>
+            <div class="footer__links">
+                <a href="#">Política de Privacidad</a>
+                <a href="#">Términos y Condiciones</a>
+                <a href="#">Contacto</a>
+            </div>
+            <p>&copy; 2025 Lumina Cosmetics. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Product Details Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body" id="modal-body">
+                <!-- Contenido dinámico del modal -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-overlay" class="cart-overlay"></div>
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button id="close-cart" class="close-cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Items del carrito dinámicos -->
+            <p class="empty-cart-msg">Tu carrito está vacío.</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">$0.00</span>
+            </div>
+            <button id="checkout-btn" class="checkout-btn">Finalizar Pedido</button>
+        </div>
+    </div>
+
+    <script src="collection.js"></script>
+</body>
+
+</html>

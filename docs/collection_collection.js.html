@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: collection/collection.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: collection/collection.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// collection.js
+
+/**
+ * URL base de la API de DummyJSON para obtener productos.
+ * @const {string}
+ */
+const API_URL = 'https://dummyjson.com/products';
+
+/**
+ * Variables de estado para la paginación y filtrado.
+ */
+let products = []; // Caché local de productos
+let limit = 8;
+let skip = 0;
+let totalProducts = 0;
+let isLoading = false;
+let currentCategory = 'all';
+let currentSort = 'default';
+
+/**
+ * Estado del carrito de compras.
+ * @type {Array&lt;object>}
+ */
+let cart = [];
+
+// Elementos del DOM (Declaración inicial, se asignan en main)
+let productGrid, loader, endMessage, categorySelect, sortSelect;
+let modal, modalBody, closeModal;
+let cartSidebar, cartOverlay, cartBtn, closeCartBtn, cartItemsContainer, cartTotalPriceEl, cartCountEl, checkoutBtn;
+
+/**
+ * Carga las categorías desde la API y rellena el select de filtros.
+ * Muestra las opciones en el elemento select del DOM.
+ */
+async function cargarCategorias() {
+    try {
+        const res = await fetch('https://dummyjson.com/products/categories');
+        const categories = await res.json();
+
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            // La API puede devolver objetos o strings
+            const value = typeof cat === 'string' ? cat : cat.slug;
+            const label = typeof cat === 'string' ? cat : cat.name;
+
+            option.value = value;
+            option.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+            categorySelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error cargando categorías:', error);
+    }
+}
+
+/**
+ * Obtiene los productos de la API basándose en los filtros y paginación actuales.
+ * Gestiona el estado de carga y muestra/oculta el loader.
+ */
+async function obtenerProductos() {
+    if (isLoading) return;
+    isLoading = true;
+    if (loader) loader.classList.add('show');
+
+    try {
+        let url = `${API_URL}`;
+        let params = `?limit=${limit}&amp;skip=${skip}&amp;select=title,price,thumbnail,category,description,images,brand,rating,stock`;
+
+        // Construir URL basada en la categoría seleccionada
+        if (currentCategory !== 'all') {
+            url = `${API_URL}/category/${currentCategory}`;
+        }
+
+        // Gestión de la ordenación
+        if (currentSort !== 'default') {
+            const [sortBy, order] = currentSort.split('-');
+            params += `&amp;sortBy=${sortBy}&amp;order=${order}`;
+        }
+
+        const fullUrl = `${url}${params}`;
+
+        const res = await fetch(fullUrl);
+        const data = await res.json();
+
+        const newProducts = data.products;
+        totalProducts = data.total;
+
+        if (newProducts.length === 0) {
+            if (endMessage) endMessage.classList.remove('hidden');
+        } else {
+            renderizarProductos(newProducts);
+            skip += limit;
+        }
+
+        // Comprobar si hemos llegado al final
+        if (skip >= totalProducts &amp;&amp; totalProducts > 0) {
+            if (endMessage) endMessage.classList.remove('hidden');
+        }
+
+    } catch (error) {
+        console.error('Error obteniendo productos:', error);
+    } finally {
+        isLoading = false;
+        if (loader) loader.classList.remove('show');
+    }
+}
+
+/**
+ * Genera el HTML para cada producto y lo añade al grid.
+ * Configura los eventos de click para ver detalles y añadir al carrito.
+ * 
+ * @param {Array&lt;object>} productosParaRenderizar - Lista de productos a mostrar.
+ */
+function renderizarProductos(productosParaRenderizar) {
+    productosParaRenderizar.forEach(product => {
+        const card = document.createElement('div');
+        card.classList.add('product-card');
+        card.dataset.id = product.id;
+
+        card.innerHTML = `
+            &lt;div class="product-image-wrapper">
+                &lt;img src="${product.thumbnail}" alt="${product.title}" class="product-image" loading="lazy">
+            &lt;/div>
+            &lt;div class="product-info">
+                &lt;span class="product-category">${product.category}&lt;/span>
+                &lt;h3 class="product-title">${product.title}&lt;/h3>
+                &lt;div class="product-price">$${product.price}&lt;/div>
+                &lt;button class="add-to-cart-btn" data-id="${product.id}">Añadir al Carrito&lt;/button>
+            &lt;/div>
+        `;
+
+        // Evento para ver detalles (evitando el botón de añadir)
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('add-to-cart-btn')) {
+                mostrarDetallesProducto(product);
+            }
+        });
+
+        // Evento para añadir al carrito
+        const addBtn = card.querySelector('.add-to-cart-btn');
+        addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            agregarAlCarrito(product);
+        });
+
+        productGrid.appendChild(card);
+    });
+}
+
+/**
+ * Muestra el modal con los detalles completos del producto.
+ * 
+ * @param {object} product - El objeto producto a mostrar.
+ */
+function mostrarDetallesProducto(product) {
+    modalBody.innerHTML = `
+        &lt;div class="product-detail">
+            &lt;div class="detail-image">
+                 &lt;img src="${product.images[0] || product.thumbnail}" alt="${product.title}">
+            &lt;/div>
+            &lt;div class="detail-info">
+                &lt;h2 class="detail-title">${product.title}&lt;/h2>
+                &lt;div class="detail-meta">Marca: ${product.brand || 'N/A'} | Valoración: ${product.rating} ★ | Stock: ${product.stock}&lt;/div>
+                &lt;p class="detail-description">${product.description}&lt;/p>
+                &lt;div class="detail-price">$${product.price}&lt;/div>
+                &lt;button class="add-to-cart-btn" id="modal-add-btn">Añadir al Carrito&lt;/button>
+            &lt;/div>
+        &lt;/div>
+    `;
+
+    // Botón de añadir dentro del modal
+    document.getElementById('modal-add-btn').addEventListener('click', () => {
+        agregarAlCarrito(product);
+        modal.style.display = 'none';
+    });
+
+    modal.style.display = 'block';
+}
+
+/**
+ * Resetea el grid de productos y el estado de paginación.
+ * Se llama al cambiar filtros u ordenación.
+ */
+function resetearGrid() {
+    productGrid.innerHTML = '';
+    skip = 0;
+    totalProducts = 0;
+    products = [];
+    if (endMessage) endMessage.classList.add('hidden');
+}
+
+/**
+ * Configura el IntersectionObserver para implementar el Scroll Infinito.
+ * Observa un elemento centinela invisible al final de la lista.
+ */
+function configurarScrollInfinito() {
+    const sentinel = document.getElementById('sentinel');
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting &amp;&amp; !isLoading) {
+            if (skip &lt; totalProducts || totalProducts === 0) {
+                if (totalProducts === 0 &amp;&amp; skip === 0) return;
+                obtenerProductos();
+            }
+        }
+    }, {
+        rootMargin: '200px',
+    });
+
+    if (sentinel) {
+        observer.observe(sentinel);
+    }
+}
+
+// --- Lógica del Carrito ---
+
+/**
+ * Carga el carrito desde localStorage.
+ */
+function cargarCarrito() {
+    const carritoGuardado = localStorage.getItem('lumina_cart');
+    if (carritoGuardado) {
+        cart = JSON.parse(carritoGuardado);
+    }
+    actualizarInterfazCarrito();
+}
+
+/**
+ * Guarda el carrito actual en localStorage.
+ */
+function guardarCarrito() {
+    localStorage.setItem('lumina_cart', JSON.stringify(cart));
+    actualizarInterfazCarrito();
+}
+
+/**
+ * Añade un producto al carrito o incrementa su cantidad si ya existe.
+ * 
+ * @param {object} product - El producto a añadir.
+ */
+function agregarAlCarrito(product) {
+    const itemExistente = cart.find(item => item.id === product.id);
+
+    if (itemExistente) {
+        itemExistente.quantity += 1;
+    } else {
+        cart.push({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            thumbnail: product.thumbnail,
+            quantity: 1
+        });
+    }
+
+    guardarCarrito();
+    abrirCarrito();
+}
+
+/**
+ * Elimina un producto del carrito por su ID.
+ * 
+ * @param {number} id - El ID del producto a eliminar.
+ */
+function eliminarDelCarrito(id) {
+    cart = cart.filter(item => item.id !== id);
+    guardarCarrito();
+}
+
+/**
+ * Actualiza la cantidad de un producto en el carrito.
+ * Si la cantidad llega a 0, elimina el producto.
+ * 
+ * @param {number} id - El ID del producto.
+ * @param {number} delta - El cambio en la cantidad (+1 o -1).
+ */
+function actualizarCantidad(id, delta) {
+    const item = cart.find(item => item.id === id);
+    if (item) {
+        item.quantity += delta;
+        if (item.quantity &lt;= 0) {
+            eliminarDelCarrito(id);
+        } else {
+            guardarCarrito();
+        }
+    }
+}
+
+/**
+ * Vacía el carrito por completo.
+ */
+function vaciarCarrito() {
+    cart = [];
+    guardarCarrito();
+}
+
+/**
+ * Abre el sidebar del carrito.
+ */
+function abrirCarrito() {
+    cartSidebar.classList.add('open');
+    cartOverlay.classList.add('open');
+}
+
+/**
+ * Cierra el sidebar del carrito.
+ */
+function cerrarCarrito() {
+    cartSidebar.classList.remove('open');
+    cartOverlay.classList.remove('open');
+}
+
+/**
+ * Actualiza la interfaz gráfica del carrito (lista, total y contador).
+ * Asigna de nuevo los eventos a los botones generados dinámicamente.
+ */
+function actualizarInterfazCarrito() {
+    // 1. Actualizar contador
+    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    cartCountEl.textContent = totalCount;
+
+    // 2. Actualizar lista visual
+    cartItemsContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '&lt;p class="empty-cart-msg">Tu carrito está vacío.&lt;/p>';
+    } else {
+        cart.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.classList.add('cart-item');
+            itemEl.innerHTML = `
+                &lt;img src="${item.thumbnail}" alt="${item.title}" class="cart-item-img">
+                &lt;div class="cart-item-details">
+                    &lt;span class="cart-item-title">${item.title}&lt;/span>
+                    &lt;span class="cart-item-price">$${item.price}&lt;/span>
+                    &lt;div class="cart-item-controls">
+                        &lt;button class="qty-btn minus" data-id="${item.id}">-&lt;/button>
+                        &lt;span>${item.quantity}&lt;/span>
+                        &lt;button class="qty-btn plus" data-id="${item.id}">+&lt;/button>
+                        &lt;button class="remove-btn" data-id="${item.id}">Eliminar&lt;/button>
+                    &lt;/div>
+                &lt;/div>
+            `;
+            cartItemsContainer.appendChild(itemEl);
+        });
+    }
+
+    // 3. Actualizar Precio Total
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    cartTotalPriceEl.textContent = `$${total.toFixed(2)}`;
+
+    // 4. Asignar listeners a los nuevos botones
+    document.querySelectorAll('.qty-btn.plus').forEach(btn => {
+        btn.addEventListener('click', () => actualizarCantidad(parseInt(btn.dataset.id), 1));
+    });
+    document.querySelectorAll('.qty-btn.minus').forEach(btn => {
+        btn.addEventListener('click', () => actualizarCantidad(parseInt(btn.dataset.id), -1));
+    });
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => eliminarDelCarrito(parseInt(btn.dataset.id)));
+    });
+}
+
+/**
+ * Función principal de inicialización.
+ * Captura referencias al DOM y configura listeners y carga inicial.
+ */
+const main = () => {
+    // Referencias al DOM
+    productGrid = document.getElementById('product-grid');
+    loader = document.getElementById('loader');
+    endMessage = document.getElementById('end-message');
+    categorySelect = document.getElementById('category-select');
+    sortSelect = document.getElementById('sort-select');
+
+    modal = document.getElementById('product-modal');
+    modalBody = document.getElementById('modal-body');
+    closeModal = document.querySelector('.close-modal');
+
+    cartSidebar = document.getElementById('cart-sidebar');
+    cartOverlay = document.getElementById('cart-overlay');
+    cartBtn = document.getElementById('cart-btn');
+    closeCartBtn = document.getElementById('close-cart');
+    cartItemsContainer = document.getElementById('cart-items');
+    cartTotalPriceEl = document.getElementById('cart-total-price');
+    cartCountEl = document.getElementById('cart-count');
+    checkoutBtn = document.getElementById('checkout-btn');
+
+    // Carga inicial
+    cargarCarrito();
+    cargarCategorias();
+    obtenerProductos();
+    configurarScrollInfinito();
+
+    // Listeners Globales
+    if (categorySelect) {
+        categorySelect.addEventListener('change', (e) => {
+            currentCategory = e.target.value;
+            resetearGrid();
+            obtenerProductos();
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            resetearGrid();
+            obtenerProductos();
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    if (cartBtn) {
+        cartBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            abrirCarrito();
+        });
+    }
+
+    if (closeCartBtn) closeCartBtn.addEventListener('click', cerrarCarrito);
+    if (cartOverlay) cartOverlay.addEventListener('click', cerrarCarrito);
+
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('El carrito está vacío.');
+                return;
+            }
+            alert('¡Gracias por tu compra! (Simulación finalizada)');
+            vaciarCarrito();
+            cerrarCarrito();
+        });
+    }
+}
+
+// Ejecutar main cuando el contenido del DOM haya sido cargado
+document.addEventListener('DOMContentLoaded', main);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#abrirCarrito">abrirCarrito</a></li><li><a href="global.html#actualizarCantidad">actualizarCantidad</a></li><li><a href="global.html#actualizarInterfazCarrito">actualizarInterfazCarrito</a></li><li><a href="global.html#agregarAlCarrito">agregarAlCarrito</a></li><li><a href="global.html#cargarCarrito">cargarCarrito</a></li><li><a href="global.html#cargarCategorias">cargarCategorias</a></li><li><a href="global.html#cart">cart</a></li><li><a href="global.html#cerrarCarrito">cerrarCarrito</a></li><li><a href="global.html#comprobarUsuario">comprobarUsuario</a></li><li><a href="global.html#configurarScrollInfinito">configurarScrollInfinito</a></li><li><a href="global.html#eliminarDelCarrito">eliminarDelCarrito</a></li><li><a href="global.html#generateCaptcha">generateCaptcha</a></li><li><a href="global.html#generatedCaptcha">generatedCaptcha</a></li><li><a href="global.html#guardarCarrito">guardarCarrito</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#mostrarDetallesProducto">mostrarDetallesProducto</a></li><li><a href="global.html#obtenerProductos">obtenerProductos</a></li><li><a href="global.html#products">products</a></li><li><a href="global.html#renderizarProductos">renderizarProductos</a></li><li><a href="global.html#resetearGrid">resetearGrid</a></li><li><a href="global.html#simularTokenJWT">simularTokenJWT</a></li><li><a href="global.html#vaciarCarrito">vaciarCarrito</a></li><li><a href="global.html#verificarCaptcha">verificarCaptcha</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Tue Jan 13 2026 13:06:30 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
