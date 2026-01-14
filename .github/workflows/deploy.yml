@@ -68,7 +68,7 @@ jobs:
             docker pull ghcr.io/${{ github.repository_owner }}/tienda-online:latest
             
             echo "Arrancando contenedor..."
-            # Usamos el puerto 8085 y --name para evitar nombres aleatorios
+            # Usamos el puerto 80 y --name para evitar nombres aleatorios
             docker run -d --name tienda-online -p 80:80 --restart unless-stopped ghcr.io/${{ github.repository_owner }}/tienda-online:latest
             
             echo "Despliegue completado!"
