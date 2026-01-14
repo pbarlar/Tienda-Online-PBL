@@ -5,9 +5,9 @@ on:
   push:
     branches:
       -  develop
-  #pull_request:
-    #branches:
-    #  - main
+  pull_request:
+    branches:
+      - main
       
 jobs:
   # JOB 1: CONSTRUIR Y PUBLICAR IMAGEN
